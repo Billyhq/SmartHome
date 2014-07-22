@@ -12,7 +12,7 @@ static char client2server_data[] = "Client To Server";
 
 static void Client2ServerFn(int sig)
 {
-    if(send(client_sockfd, client2server_data, sizeof(server2client_data),0) < 0)
+    if(send(client_sockfd, client2server_data, sizeof(client2server_data),0) < 0)
     {
         perror("Error! clientr to server.");
     }
@@ -48,11 +48,11 @@ int main(int argc, char *argv[])
 	}
 	printf("connected to server/n");
 	len=recv(client_sockfd,buf,BUFSIZ,0);//接收服务器端信息
-         buf[len]='/0';
+         buf[len]='\0';
 	printf("%s",buf); //打印服务器端信息
 
-    signal(SIGALRM, Client2ServerFn);
-    alarm(MSG_INTERVAL);	
+        signal(SIGALRM, Client2ServerFn);
+        alarm(MSG_INTERVAL);	
 	/*循环的发送接收信息并打印接收信息--recv返回接收到的字节数，send返回发送的字节数*/
 	while(1)
 	{
@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
 			break;*/
 		//len=send(client_sockfd,buf,strlen(buf),0);
 		len=recv(client_sockfd,buf,BUFSIZ,0);
-		buf[len]='/0';
+		buf[len]='\0';
 		printf("Server To Client:%s/n",buf);
 	}
 	close(client_sockfd);//关闭套接字
-         return 0;
+        return 0;
 }

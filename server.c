@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 	len=send(client_sockfd,"Welcome to my server\n",21,0);//发送欢迎信息
 
 	signal(SIGALRM, Server2ClientFn);
-    alarm(MSG_INTERVAL);
+        alarm(MSG_INTERVAL);
 	/*接收客户端的数据并将其发送给客户端--recv返回接收到的字节数，send返回发送的字节数*/
 	while((len=recv(client_sockfd,buf,BUFSIZ,0))>0)
 	{
