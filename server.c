@@ -14,11 +14,11 @@ static void Server2ClientFn(int sig)
 {
     if(send(client_sockfd, server2client_data, sizeof(server2client_data),0) < 0)
     {
-        perror("Error! server to client.");
+        perror("Error! server to client.\n");
     }
     else
     {
-        printf("OK! server to client");
+        printf("OK! server to client.\n");
         alarm(MSG_INTERVAL);
     }
 }

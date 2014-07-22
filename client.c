@@ -14,11 +14,11 @@ static void Client2ServerFn(int sig)
 {
     if(send(client_sockfd, client2server_data, sizeof(client2server_data),0) < 0)
     {
-        perror("Error! clientr to server.");
+        perror("Error! client to server.\n");
     }
     else
     {
-        printf("OK! clientr to server");
+        printf("OK! client to server.\n");
         alarm(MSG_INTERVAL);
     }
 }
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
 	char buf[BUFSIZ];  //数据传送的缓冲区
 	memset(&remote_addr,0,sizeof(remote_addr)); //数据初始化--清零
 	remote_addr.sin_family=AF_INET; //设置为IP通信
+	//remote_addr.sin_addr.s_addr=inet_addr("54.213.192.93");//服务器IP地址
 	remote_addr.sin_addr.s_addr=inet_addr("127.0.0.1");//服务器IP地址
 	remote_addr.sin_port=htons(8000); //服务器端口号
 	
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 		perror("connect");
 		return 1;
 	}
-	printf("connected to server/n");
+	printf("connected to server\n");
 	len=recv(client_sockfd,buf,BUFSIZ,0);//接收服务器端信息
          buf[len]='\0';
 	printf("%s",buf); //打印服务器端信息
@@ -54,16 +55,15 @@ int main(int argc, char *argv[])
         signal(SIGALRM, Client2ServerFn);
         alarm(MSG_INTERVAL);	
 	/*循环的发送接收信息并打印接收信息--recv返回接收到的字节数，send返回发送的字节数*/
-	while(1)
+	while((len=recv(client_sockfd,buf,BUFSIZ,0))>0)
 	{
 		/*printf("Enter string to send:");
 		scanf("%s",buf);
 		if(!strcmp(buf,"quit"))
 			break;*/
 		//len=send(client_sockfd,buf,strlen(buf),0);
-		len=recv(client_sockfd,buf,BUFSIZ,0);
 		buf[len]='\0';
-		printf("Server To Client:%s/n",buf);
+		printf("Server To Client:%s\n",buf);
 	}
 	close(client_sockfd);//关闭套接字
         return 0;
