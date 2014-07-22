@@ -3,11 +3,29 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
+
+#define MSG_INTERVAL   3   //send msg every 3s
+
+static int client_sockfd;//客户端套接字;
+static char server2client_data[] = "Server To Client";
+
+static void Server2ClientFn(int sig)
+{
+    if(send(client_sockfd, server2client_data, sizeof(server2client_data),0) < 0)
+    {
+        perror("Error! server to client.");
+    }
+    else
+    {
+        printf("OK! server to client");
+        alarm(MSG_INTERVAL);
+    }
+}
 
 int main(int argc, char *argv[])
 {
 	int server_sockfd;//服务器端套接字
-	int client_sockfd;//客户端套接字
 	int len;
 	struct sockaddr_in my_addr;   //服务器网络地址结构体
 	struct sockaddr_in remote_addr; //客户端网络地址结构体
@@ -45,17 +63,19 @@ int main(int argc, char *argv[])
 	}
 	printf("accept client %s\n",inet_ntoa(remote_addr.sin_addr));
 	len=send(client_sockfd,"Welcome to my server\n",21,0);//发送欢迎信息
-	
+
+	signal(SIGALRM, Server2ClientFn);
+    alarm(MSG_INTERVAL);
 	/*接收客户端的数据并将其发送给客户端--recv返回接收到的字节数，send返回发送的字节数*/
 	while((len=recv(client_sockfd,buf,BUFSIZ,0))>0)
 	{
 		buf[len]='\0';
-		printf("%s\n",buf);
-		if(send(client_sockfd,buf,len,0)<0)
+		printf("Data From Client: %s\n",buf);
+		/*if(send(client_sockfd,buf,len,0)<0)
 		{
 			perror("write");
 			return 1;
-		}
+		}*/
 	}
 	close(client_sockfd);
 	close(server_sockfd);
