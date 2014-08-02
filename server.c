@@ -65,19 +65,24 @@ int main(int argc, char *argv[])
 	len=send(client_sockfd,"Welcome to my server\n",21,0);//发送欢迎信息
 
 	signal(SIGALRM, Server2ClientFn);
-        alarm(MSG_INTERVAL);
+    alarm(MSG_INTERVAL);
 	/*接收客户端的数据并将其发送给客户端--recv返回接收到的字节数，send返回发送的字节数*/
+#if 1
 	while((len=recv(client_sockfd,buf,BUFSIZ,0))>0)
 	{
-		buf[len]='\0';
-		printf("Data From Client: %s\n",buf);
+		//buf[len]='\0';
+		printf("Data From Client, length is %d\n",len);
+        //Server2ClientFn(0);   //send by to client
 		/*if(send(client_sockfd,buf,len,0)<0)
 		{
 			perror("write");
 			return 1;
 		}*/
 	}
+#else
+    while(1);
+#endif
 	close(client_sockfd);
 	close(server_sockfd);
-        return 0;
+    return 0;
 }

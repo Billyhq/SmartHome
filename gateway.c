@@ -6,6 +6,7 @@
 #include <fcntl.h> 
 #include <termios.h>
 #include <errno.h>
+#include <string.h>  //bzero
 
 #define UART_DEV_NAME  "/dev/ttyAMA0"
 #define UART_BAUD_RATE B9600
@@ -61,7 +62,7 @@ int r_open(const char *router)
     /* Choosing Raw Input */
     options.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHONL| ISIG);
 
-    options.c_cc[VTIME] = 0; 
+    options.c_cc[VTIME] = 1; 
     options.c_cc[VMIN]  = 0; 
 
     tcflush(handle,TCIFLUSH);
@@ -78,16 +79,13 @@ int r_open(const char *router)
 int main()
 {
     int fd;
-    int i;
-    int len;
     int n = 0; 
     char read_buf[256];
     char write_buf[256];
     struct termios opt;
-    char localStatus = 0xFE;
-    char downLoadStatus; 
-    char downLoadFlag = 0x00;
     const char *dev = UART_DEV_NAME;
+    int read_time = 0;
+    int one_frame_len = 0;
 
     fd = r_open(dev);
     if(fd == -1)
@@ -101,14 +99,22 @@ int main()
     bzero(read_buf, sizeof(read_buf)); //ÀàËÆÓÚmemset
     bzero(write_buf, sizeof(write_buf));
 
-    while( (n = read(fd, read_buf, sizeof(read_buf))) > 0 )
+    while(1) 
+    {
+        while( (n = read(fd, read_buf, sizeof(read_buf))) > 0 )
 	{
-	    read_buf[len] = '\0';
-		printf("Len %d \n", len);
-        //printf("%s \n", read_buf);
+            read_time++;
+            one_frame_len += n; 
+        }
+        if(read_time)
+        {
+            printf("one frame len is: %d\n", one_frame_len); 
+            read_time = 0;
+            one_frame_len = 0;
+        } 
     }
 
-	close(fd);
+    close(fd);
 
     return 0;
 } 
